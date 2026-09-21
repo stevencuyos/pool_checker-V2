@@ -1,0 +1,1994 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+      font-size: 13px;
+    }
+
+    button,
+    select,
+    input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      padding: 18px;
+    }
+
+    /* HEADER */
+
+    .header {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 1px 3px rgba(15,23,42,.06);
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      color: #64748b;
+      font-size: 12px;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    select,
+    input {
+      border: 1px solid #cbd5e1;
+      border-radius: 7px;
+      padding: 8px 10px;
+      background: white;
+      outline: none;
+    }
+
+    select:focus,
+    input:focus {
+      border-color: #64748b;
+    }
+
+    .btn {
+
+  border:1px solid #dadce0;
+  background:#fff;
+
+  color:#3c4043;
+
+  padding:8px 16px;
+
+  border-radius:4px;
+
+  font-weight:500;
+
+  transition:.2s;
+
+}
+
+
+.btn:hover {
+
+  background:#f8fafd;
+  border-color:#c6c6c6;
+
+}
+
+
+.btn-primary {
+
+  background:var(--google-blue);
+
+  border-color:var(--google-blue);
+
+  color:white;
+
+}
+
+
+.btn-primary:hover {
+
+  background:var(--google-blue-hover);
+
+}
+
+    .btn-danger {
+      color: #dc2626;
+    }
+
+    .btn-small {
+      padding: 5px 8px;
+      font-size: 11px;
+    }
+
+    /* METRICS */
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .metric {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .metric-label {
+      color: #64748b;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .metric-value {
+      font-size: 25px;
+      font-weight: 700;
+      margin-top: 5px;
+    }
+
+    .metric:first-child .metric-value {
+  color:#1a73e8;
+}
+
+.metric:nth-child(2) .metric-value {
+  color:#34a853;
+}
+
+.metric:nth-child(3) .metric-value {
+  color:#a142f4;
+}
+
+    /* CHECKER */
+
+    .checker {
+      margin-top: 14px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .checker-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .checker-row input {
+      flex: 1;
+    }
+
+    .result {
+      margin-top: 10px;
+      padding: 9px 10px;
+      border-radius: 7px;
+      background: #f8fafc;
+      color: #475569;
+      display: none;
+    }
+
+    .result.found {
+      display: block;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .result.not-found {
+      display: block;
+      background: #fef2f2;
+      color: #b91c1c;
+    }
+
+    /* DISTRIBUTION */
+
+    .distribution {
+      margin-top: 14px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .bar {
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 99px;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .bar-primary {
+      background: #2563eb;
+    }
+
+    .bar-secondary {
+      background: #a855f7;
+    }
+
+    .legend {
+      display: flex;
+      gap: 18px;
+      margin-top: 9px;
+      color: #475569;
+      font-size: 11px;
+    }
+
+    /* FILTERS */
+
+    .toolbar {
+      margin-top: 14px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto;
+      gap: 7px;
+    }
+
+    /* TABLE */
+
+    .table-card {
+      margin-top: 14px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #64748b;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    td {
+      padding: 9px 10px;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .pool-name {
+      font-weight: 600;
+    }
+
+    .pool-id {
+      font-family: monospace;
+      color: #475569;
+    }
+
+    .badge {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .badge-primary {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .badge-secondary {
+      background: #f3e8ff;
+      color: #7e22ce;
+    }
+
+    .badge-play {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .badge-tv {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .badge-other {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+
+    .empty {
+      text-align: center;
+      padding: 35px;
+      color: #94a3b8;
+    }
+
+    /* MODAL */
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      width: 440px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 50px rgba(0,0,0,.2);
+      padding: 20px;
+    }
+
+    .modal-title {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 15px;
+    }
+
+    .field {
+      margin-bottom: 12px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: #475569;
+      margin-bottom: 5px;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 7px;
+      margin-top: 18px;
+    }
+
+    /* TOAST */
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #0f172a;
+      color: white;
+      padding: 10px 14px;
+      border-radius: 7px;
+      box-shadow: 0 5px 20px rgba(0,0,0,.2);
+      display: none;
+      z-index: 500;
+    }
+
+    .toast.show {
+      display: block;
+    }
+
+    .loading {
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 400;
+      font-weight: 700;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 900px) {
+      .toolbar {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+
+.tabs {
+
+  margin-top:14px;
+
+  display:flex;
+
+  gap:4px;
+
+  border-bottom:1px solid var(--border);
+
+}
+
+
+.tabs .btn {
+
+  border-radius:0;
+
+  border:none;
+
+  background:transparent;
+
+  color:#5f6368;
+
+}
+
+
+.tabs .btn-primary {
+
+  color:#1a73e8;
+
+  background:white;
+
+  border-bottom:3px solid #1a73e8;
+
+}
+
+
+.tab-content.hidden {
+  display:none;
+}
+.team-box {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 3px rgba(15,23,42,.06);
+}
+
+.team-box-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.team-box table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.team-box th {
+  background: #f8fafc;
+}
+
+.team-box td,
+.team-box th {
+  padding: 9px 10px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.team-box tr:last-child td {
+  border-bottom: 0;
+}
+
+.team-badge {
+
+  display:inline-flex;
+
+  align-items:center;
+
+  padding:5px 12px;
+
+  border-radius:16px;
+
+  font-weight:700;
+
+  color:#202124;
+
+  font-size:12px;
+
+}
+
+.total-number {
+
+  background:#e8f0fe;
+
+  color:#1967d2;
+
+}
+
+
+/* TEAM OVERVIEW HEADER LOCK */
+
+.overview-card {
+  margin-top: 14px;
+  background: white;
+  border: 1px solid #dadce0;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(60,64,67,.15);
+}
+
+
+/* Sticky title */
+
+.overview-card .section-title {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: white;
+  padding: 10px 0;
+  border-bottom: 1px solid #dadce0;
+}
+
+
+/* Sticky Team Overview table header */
+
+.table-wrapper {
+  max-height: 650px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+
+.team-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+
+/* Keep column headers fixed while scrolling */
+
+.team-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+
+  background: #f8f9fa;
+  color: #5f6368;
+
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+
+  padding: 12px;
+
+  border-bottom: 1px solid #dadce0;
+}
+
+
+/* Google hover style */
+
+.team-table tbody tr:hover {
+  background: #f1f3f4;
+}
+
+
+/* Team colors */
+
+.team-name {
+  font-weight: 700;
+  color: #1a73e8;
+}
+
+
+/* Agent */
+
+.agent-name {
+  color: #5f6368;
+}
+
+
+/* Number pills */
+
+.number-box {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  min-width: 45px;
+
+  padding: 4px 10px;
+
+  border-radius: 20px;
+
+  font-weight: 700;
+
+  background: #f1f3f4;
+  color: #202124;
+}
+
+
+/* Different colors */
+
+.team-table td:nth-child(3) .number-box {
+  background: #e8f0fe;
+  color: #1967d2;
+}
+
+
+.team-table td:nth-child(4) .number-box {
+  background: #fce8e6;
+  color: #d93025;
+}
+
+
+.team-table td:nth-child(5) .number-box {
+  background: #e6f4ea;
+  color: #188038;
+}
+
+
+  </style>
+</head>
+
+<body>
+
+<div class="tabs">
+
+  <button 
+  class="btn btn-primary"
+  onclick="showTab('dashboardTab')">
+  📊 Dashboard
+  </button>
+
+
+  <button 
+  class="btn"
+  onclick="showTab('teamTab')">
+  👥 Team Overview
+  </button>
+
+</div>
+
+
+<div id="dashboardTab" class="tab-content app">
+
+
+
+
+  <!-- HEADER -->
+  <div class="header">
+
+    <div>
+      <div class="title">
+        Chat Pool ID Checker
+      </div>
+
+      <div class="subtitle">
+        Manage primary and secondary LDAP pool assignments
+      </div>
+    </div>
+
+    <div class="header-controls">
+
+      <select id="teamSelect" onchange="changeTeam()">
+        <option value="">Select Team</option>
+      </select>
+
+      <select id="agentSelect" onchange="changeAgent()">
+        <option value="">Select Agent</option>
+      </select>
+
+      
+
+      <button class="btn" onclick="loadData(false)">
+        ↻ Refresh
+      </button>
+
+      <button class="btn" onclick="closeApp()">
+        Close
+      </button>
+
+    </div>
+    
+  </div>
+
+
+  <!-- METRICS -->
+  <div class="metrics">
+
+    <div class="metric">
+      <div class="metric-label">Total Pools</div>
+      <div class="metric-value" id="totalCount">0</div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-label">Primary</div>
+      <div class="metric-value" id="primaryCount">0</div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-label">Secondary</div>
+      <div class="metric-value" id="secondaryCount">0</div>
+    </div>
+
+  </div>
+
+
+  <!-- CHECKER -->
+  <div class="checker">
+
+    <div class="section-title">
+      Check Pool ID / Name
+    </div>
+
+    <div class="checker-row">
+      <input
+        id="checkerInput"
+        placeholder="Enter LDAP pool ID or pool name..."
+        oninput="runChecker()"
+      >
+
+      <button class="btn" onclick="clearChecker()">
+        Clear
+      </button>
+    </div>
+
+    <div id="checkerResult" class="result"></div>
+
+  </div>
+
+
+  <!-- DISTRIBUTION -->
+  <div class="distribution">
+
+    <div class="section-title">
+      Pool Distribution
+    </div>
+
+    <div class="bar">
+      <div
+        id="primaryBar"
+        class="bar-primary"
+        style="width:50%"
+      ></div>
+
+      <div
+        id="secondaryBar"
+        class="bar-secondary"
+        style="width:50%"
+      ></div>
+    </div>
+
+    <div class="legend">
+      <span>● Primary</span>
+      <span>● Secondary</span>
+    </div>
+
+  </div>
+
+
+  <!-- FILTERS -->
+  <div class="toolbar">
+
+    <input
+      id="search"
+      placeholder="Search ID or pool name..."
+      oninput="renderTable()"
+    >
+
+    <select id="typeFilter" onchange="renderTable()">
+      <option value="All">All Pools</option>
+      <option value="Primary">Primary</option>
+      <option value="Secondary">Secondary</option>
+    </select>
+
+    <select id="categoryFilter" onchange="renderTable()">
+      <option value="All">All Categories</option>
+      <option value="Google Play">Google Play</option>
+      <option value="Google TV">Google TV</option>
+      <option value="Other">Other</option>
+      <option value="Unnamed / ID Only">Unnamed / ID Only</option>
+    </select>
+
+    <select id="languageFilter" onchange="renderTable()">
+      <option value="All">All Languages</option>
+    </select>
+
+    <select id="sortFilter" onchange="renderTable()">
+      <option value="default">Default</option>
+      <option value="nameAsc">Name A-Z</option>
+      <option value="nameDesc">Name Z-A</option>
+      <option value="idAsc">ID Low-High</option>
+      <option value="idDesc">ID High-Low</option>
+    </select>
+
+    <button class="btn" onclick="resetFilters()">
+      Reset
+    </button>
+
+  </div>
+
+
+  <!-- TABLE -->
+  <div class="table-card">
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Pool Name</th>
+          <th>LDAP ID</th>
+          <th>Category</th>
+          <th>Language</th>
+        </tr>
+      </thead>
+
+      <tbody id="poolTable">
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
+
+<div id="teamTab" class="tab-content app hidden">
+
+  <div class="overview-card">
+
+    <div class="section-title">
+      Agent Pool Summary By Team
+    </div>
+
+    <div class="table-wrapper">
+
+      <table class="team-table">
+
+        <thead>
+          <tr>
+            <th>Team</th>
+            <th>Agent</th>
+            <th>Primary</th>
+            <th>Secondary</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+
+        <tbody id="teamSummaryTable">
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+
+</div>
+
+
+</div>
+
+<!-- ADD / EDIT MODAL -->
+<div id="poolModal" class="modal-backdrop">
+
+  <div class="modal">
+
+    <div class="field">
+
+      <label>Pool Type</label>
+
+      <select id="poolType">
+        <option value="Primary">Primary</option>
+        <option value="Secondary">Secondary</option>
+      </select>
+
+    </div>
+
+    <div class="field">
+
+      <label>Pool Name</label>
+
+      <input id="poolName" placeholder="Pool name">
+
+    </div>
+
+    <div class="field">
+
+      <label>LDAP ID</label>
+
+      <input id="poolId" placeholder="LDAP ID">
+
+    </div>
+
+    <input type="hidden" id="editRow">
+    <input type="hidden" id="editType">
+
+    <div class="modal-actions">
+
+      <button class="btn" onclick="closePoolModal()">
+        Cancel
+      </button>
+
+      <button class="btn btn-primary" onclick="savePool()">
+        Save
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- CUSTOM TEAM MODAL -->
+<div id="teamModal" class="modal-backdrop">
+
+  <div class="modal">
+
+    <div class="modal-title">
+      Add Custom Team
+    </div>
+
+    <div class="field">
+      <label>Team Name</label>
+      <input id="customTeam">
+    </div>
+
+    <div class="modal-actions">
+
+      <button class="btn" onclick="closeTeamModal()">
+        Cancel
+      </button>
+
+      <button class="btn btn-primary" onclick="saveCustomTeam()">
+        Add Team
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- CUSTOM AGENT MODAL -->
+<div id="agentModal" class="modal-backdrop">
+
+  <div class="modal">
+
+    <div class="modal-title">
+      Add Custom Agent
+    </div>
+
+    <div class="field">
+      <label>Agent Name</label>
+      <input id="customAgent">
+    </div>
+
+    <div class="modal-actions">
+
+      <button class="btn" onclick="closeAgentModal()">
+        Cancel
+      </button>
+
+      <button class="btn btn-primary" onclick="saveCustomAgent()">
+        Add Agent
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<div id="loading" class="loading">
+  Loading...
+</div>
+
+<div id="toast" class="toast"></div>
+
+
+<script>
+
+let DATA = {
+  team: '',
+  agent: '',
+  pools: [],
+  teams: [],
+  agents: [],
+  stats: {}
+};
+
+const LANGUAGES = [
+  'Arabic',
+  'Bulgarian',
+  'Czech',
+  'Danish',
+  'Dutch',
+  'English',
+  'Estonian',
+  'Finnish',
+  'German',
+  'Greek',
+  'Hebrew',
+  'Hungarian',
+  'Icelandic',
+  'Italian',
+  'Latvian',
+  'Lithuanian',
+  'Norwegian',
+  'Polish',
+  'Portuguese',
+  'Romanian',
+  'Russian',
+  'Slovak',
+  'Spanish',
+  'Swedish',
+  'Turkish',
+  'Ukrainian'
+];
+
+function showTab(id){
+
+  document
+    .querySelectorAll('.tab-content')
+    .forEach(x=>{
+      x.classList.add('hidden');
+    });
+
+
+  document
+    .getElementById(id)
+    .classList.remove('hidden');
+
+
+  document
+    .querySelectorAll('.tabs .btn')
+    .forEach(btn=>{
+      btn.classList.remove('btn-primary');
+    });
+
+
+  const activeButton =
+    document.querySelector(
+      `.tabs button[onclick="showTab('${id}')"]`
+    );
+
+
+  if(activeButton){
+    activeButton.classList.add('btn-primary');
+  }
+
+
+  if (id === 'teamTab') {
+    loadTeamSummary();
+  }
+
+}
+
+
+
+function loadTeamSummary(){
+
+ google.script.run
+ .withSuccessHandler(data=>{
+
+    const tbody =
+      document.getElementById(
+        'teamSummaryTable'
+      );
+
+
+    // Sort Team Name then Agent Name
+    data.sort((a,b)=>{
+
+      const teamCompare =
+        a.team.localeCompare(b.team);
+
+      if (teamCompare !== 0) {
+        return teamCompare;
+      }
+
+      return a.agent.localeCompare(b.agent);
+
+    });
+
+
+    // Generate consistent colors per team
+    const teamColors = {};
+
+   const colors = [
+  '#e8f0fe', // Google Blue 100
+  '#e6f4ea', // Google Green 100
+  '#fef7e0', // Google Yellow 100
+  '#fce8e6', // Google Red 100
+  '#f3e8fd', // Google Purple 100
+  '#e0f2f1', // Google Teal 100
+  '#fff3e0', // Google Orange 100
+  '#e8eaed'  // Google Grey 200
+];
+
+    let colorIndex = 0;
+
+
+    data.forEach(row => {
+
+      if (!teamColors[row.team]) {
+
+        teamColors[row.team] =
+          colors[colorIndex % colors.length];
+
+        colorIndex++;
+
+      }
+
+    });
+
+
+
+    tbody.innerHTML =
+      data.map(x=>`
+
+<tr>
+
+<td>
+  <span class="team-badge"
+        style="background:${teamColors[x.team]}">
+    ${escapeHtml(x.team)}
+  </span>
+</td>
+
+<td>
+  <span class="agent-name">
+    ${escapeHtml(x.agent)}
+  </span>
+</td>
+
+<td>
+  <span class="number-box">
+    ${x.primary}
+  </span>
+</td>
+
+<td>
+  <span class="number-box">
+    ${x.secondary}
+  </span>
+</td>
+
+<td>
+  <span class="number-box total-number">
+    ${x.total}
+  </span>
+</td>
+
+</tr>
+
+`).join('');
+
+
+ })
+ .withFailureHandler(error=>{
+    toast(error.message);
+ })
+ .getTeamPoolSummary();
+
+}
+
+
+
+/* =========================
+   LOAD
+========================= */
+
+// Updated to accept a 'silent' parameter for auto-refreshing without blocking the screen
+function loadData(silent = false) {
+
+  if (!silent) showLoading(true);
+
+ google.script.run
+  .withSuccessHandler(data => {
+
+      DATA = data;
+
+      populateDropdowns();
+      updateMetrics();
+      renderTable();
+      runChecker();
+
+      if (!silent) showLoading(false);
+
+  })
+  .withFailureHandler(error => {
+
+      if (!silent) showLoading(false);
+      if (!silent) toast(error.message);
+
+  })
+  .getDashboardData(
+      DATA.team,
+      DATA.agent
+  );
+
+}
+
+
+/* =========================
+   DROPDOWNS
+========================= */
+
+function populateDropdowns() {
+
+  const team = document.getElementById('teamSelect');
+  const agent = document.getElementById('agentSelect');
+
+  team.innerHTML =
+    '<option value="">Select Team</option>';
+
+  DATA.teams.forEach(value => {
+
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = value;
+
+    if (value === DATA.team) {
+      option.selected = true;
+    }
+
+    team.appendChild(option);
+
+  });
+
+  if (
+    DATA.team &&
+    !DATA.teams.includes(DATA.team)
+  ) {
+    const option = document.createElement('option');
+    option.value = DATA.team;
+    option.textContent = DATA.team;
+    option.selected = true;
+    team.appendChild(option);
+  }
+
+
+  agent.innerHTML =
+    '<option value="">Select Agent</option>';
+
+  DATA.agents.forEach(value => {
+
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = value;
+
+    if (value === DATA.agent) {
+      option.selected = true;
+    }
+
+    agent.appendChild(option);
+
+  });
+
+  if (
+    DATA.agent &&
+    !DATA.agents.includes(DATA.agent)
+  ) {
+    const option = document.createElement('option');
+    option.value = DATA.agent;
+    option.textContent = DATA.agent;
+    option.selected = true;
+    agent.appendChild(option);
+  }
+
+  populateLanguages();
+}
+
+
+function populateLanguages() {
+
+  const select = document.getElementById('languageFilter');
+
+  select.innerHTML =
+    '<option value="All">All Languages</option>';
+
+  LANGUAGES.forEach(language => {
+
+    const option = document.createElement('option');
+
+    option.value = language;
+    option.textContent = language;
+
+    select.appendChild(option);
+
+  });
+}
+
+
+/* =========================
+   TEAM / AGENT
+========================= */
+
+function changeTeam() {
+
+  DATA.team =
+    document.getElementById('teamSelect').value;
+
+  DATA.agent = '';
+
+  loadData(false);
+
+}
+
+
+function changeAgent() {
+
+  DATA.agent =
+    document.getElementById('agentSelect').value;
+
+  loadData(false);
+
+}
+
+
+
+/* =========================
+   METRICS
+========================= */
+
+function updateMetrics() {
+
+  document.getElementById('totalCount').textContent =
+    DATA.stats.total || 0;
+
+  document.getElementById('primaryCount').textContent =
+    DATA.stats.primary || 0;
+
+  document.getElementById('secondaryCount').textContent =
+    DATA.stats.secondary || 0;
+
+
+  const total =
+    DATA.stats.primary + DATA.stats.secondary;
+
+  let primaryPercent = 50;
+
+  if (total > 0) {
+    primaryPercent =
+      DATA.stats.primary / total * 100;
+  }
+
+  document.getElementById('primaryBar')
+    .style.width = primaryPercent + '%';
+
+  document.getElementById('secondaryBar')
+    .style.width = (100 - primaryPercent) + '%';
+}
+
+
+/* =========================
+   TABLE
+========================= */
+
+function renderTable() {
+
+  const tbody =
+    document.getElementById('poolTable');
+
+  const search =
+    document.getElementById('search')
+      .value
+      .toLowerCase()
+      .trim();
+
+  const type =
+    document.getElementById('typeFilter').value;
+
+  const category =
+    document.getElementById('categoryFilter').value;
+
+  const language =
+    document.getElementById('languageFilter').value;
+
+  const sort =
+    document.getElementById('sortFilter').value;
+
+
+  let pools = DATA.pools.filter(pool => {
+
+    const text =
+      (pool.name + ' ' + pool.id)
+        .toLowerCase();
+
+    if (
+      search &&
+      !text.includes(search)
+    ) {
+      return false;
+    }
+
+    if (
+      type !== 'All' &&
+      pool.type !== type
+    ) {
+      return false;
+    }
+
+    if (
+      category !== 'All' &&
+      pool.category !== category
+    ) {
+      return false;
+    }
+
+    if (language !== 'All') {
+
+      const haystack =
+        (pool.name + ' ' + pool.id)
+          .toLowerCase();
+
+      if (
+        !haystack.includes(language.toLowerCase())
+      ) {
+        return false;
+      }
+    }
+
+    return true;
+
+  });
+
+
+  if (sort === 'nameAsc') {
+    pools.sort((a,b) =>
+      a.name.localeCompare(b.name)
+    );
+  }
+
+  if (sort === 'nameDesc') {
+    pools.sort((a,b) =>
+      b.name.localeCompare(a.name)
+    );
+  }
+
+  if (sort === 'idAsc') {
+    pools.sort((a,b) =>
+      String(a.id).localeCompare(
+        String(b.id),
+        undefined,
+        {numeric:true}
+      )
+    );
+  }
+
+  if (sort === 'idDesc') {
+    pools.sort((a,b) =>
+      String(b.id).localeCompare(
+        String(a.id),
+        undefined,
+        {numeric:true}
+      )
+    );
+  }
+
+
+  if (!pools.length) {
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" class="empty">
+          No pools found.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  tbody.innerHTML = pools.map(pool => {
+
+    const categoryClass =
+      pool.category === 'Google Play'
+        ? 'badge-play'
+        : pool.category === 'Google TV'
+          ? 'badge-tv'
+          : 'badge-other';
+
+    const typeClass =
+      pool.type === 'Primary'
+        ? 'badge-primary'
+        : 'badge-secondary';
+
+    return `
+      <tr>
+
+        <td>
+          <span class="badge ${typeClass}">
+            ${escapeHtml(pool.type)}
+          </span>
+        </td>
+
+        <td>
+          <div class="pool-name">
+            ${escapeHtml(pool.name || '—')}
+          </div>
+        </td>
+
+        <td>
+          <span class="pool-id">
+            ${escapeHtml(pool.id || '—')}
+          </span>
+        </td>
+
+        <td>
+          <span class="badge ${categoryClass}">
+            ${escapeHtml(pool.category)}
+          </span>
+        </td>
+
+        <td>
+          ${escapeHtml(detectLanguage(pool.name))}
+        </td>
+
+
+        <td>
+
+
+        </td>
+
+      </tr>
+    `;
+
+  }).join('');
+}
+
+
+/* =========================
+   LANGUAGE
+========================= */
+
+function detectLanguage(name) {
+
+  const text =
+    String(name || '').toLowerCase();
+
+  for (const language of LANGUAGES) {
+
+    if (
+      text.includes(language.toLowerCase())
+    ) {
+      return language;
+    }
+
+  }
+
+  return '—';
+}
+
+
+
+
+
+
+/* =========================
+   MOVE
+========================= */
+
+function movePool(pool, direction) {
+
+  showLoading(true);
+
+  google.script.run
+    .withSuccessHandler(data => {
+
+      DATA = data;
+
+      renderTable();
+      runChecker();
+
+      showLoading(false);
+
+    })
+    .withFailureHandler(error => {
+
+      showLoading(false);
+      toast(error.message);
+
+    })
+    .movePool(
+      pool.type,
+      pool.row,
+      direction
+    );
+}
+
+
+/* =========================
+   COPY
+========================= */
+
+function copyId(id) {
+
+  if (!id) {
+    toast('No ID to copy.');
+    return;
+  }
+
+  if (
+    navigator.clipboard &&
+    navigator.clipboard.writeText
+  ) {
+
+    navigator.clipboard
+      .writeText(id)
+      .then(() => toast('ID copied.'));
+
+    return;
+  }
+
+  const textarea =
+    document.createElement('textarea');
+
+  textarea.value = id;
+
+  document.body.appendChild(textarea);
+
+  textarea.select();
+
+  document.execCommand('copy');
+
+  textarea.remove();
+
+  toast('ID copied.');
+}
+
+
+/* =========================
+   CHECKER
+========================= */
+
+function runChecker() {
+
+  const input =
+    document.getElementById('checkerInput')
+      .value
+      .toLowerCase()
+      .trim();
+
+  const result =
+    document.getElementById('checkerResult');
+
+
+  if (!input) {
+
+    result.className = 'result';
+    result.innerHTML = '';
+
+    return;
+  }
+
+
+  const exact =
+    DATA.pools.filter(pool =>
+      String(pool.id).toLowerCase() === input ||
+      String(pool.name).toLowerCase() === input
+    );
+
+
+  const matches =
+    DATA.pools.filter(pool =>
+      String(pool.id)
+        .toLowerCase()
+        .includes(input) ||
+
+      String(pool.name)
+        .toLowerCase()
+        .includes(input)
+    );
+
+
+  if (exact.length) {
+
+    result.className = 'result found';
+
+    result.innerHTML =
+      '<strong>Exact match found:</strong> ' +
+      exact.map(pool =>
+        `${escapeHtml(pool.type)} — ` +
+        `${escapeHtml(pool.name || pool.id)} ` +
+        `(row ${pool.row})`
+      ).join('<br>');
+
+    return;
+  }
+
+
+  if (matches.length) {
+
+    result.className = 'result found';
+
+    result.innerHTML =
+      `<strong>${matches.length} matching pool(s):</strong><br>` +
+      matches.slice(0, 10).map(pool =>
+        `${escapeHtml(pool.type)} — ` +
+        `${escapeHtml(pool.name || 'Unnamed')} — ` +
+        `${escapeHtml(pool.id || 'No ID')}`
+      ).join('<br>');
+
+    return;
+  }
+
+
+  result.className = 'result not-found';
+
+  result.innerHTML =
+    '<strong>No matching pool found.</strong>';
+}
+
+
+function clearChecker() {
+
+  document.getElementById('checkerInput').value = '';
+
+  const result =
+    document.getElementById('checkerResult');
+
+  result.className = 'result';
+  result.innerHTML = '';
+}
+
+
+/* =========================
+   FILTERS
+========================= */
+
+function resetFilters() {
+
+  document.getElementById('search').value = '';
+  document.getElementById('typeFilter').value = 'All';
+  document.getElementById('categoryFilter').value = 'All';
+  document.getElementById('languageFilter').value = 'All';
+  document.getElementById('sortFilter').value = 'default';
+
+  renderTable();
+}
+
+
+/* =========================
+   CUSTOM TEAM
+========================= */
+
+function openTeamModal() {
+  openModal('teamModal');
+}
+
+function closeTeamModal() {
+  closeModal('teamModal');
+}
+
+function saveCustomTeam() {
+
+  const value =
+    document.getElementById('customTeam')
+      .value
+      .trim();
+
+  if (!value) {
+    toast('Enter a team name.');
+    return;
+  }
+
+  showLoading(true);
+
+  google.script.run
+    .withSuccessHandler(data => {
+
+      DATA = data;
+
+      document.getElementById('customTeam').value = '';
+
+      closeTeamModal();
+
+      populateDropdowns();
+
+      showLoading(false);
+
+      toast('Custom team added.');
+
+    })
+    .withFailureHandler(error => {
+
+      showLoading(false);
+      toast(error.message);
+
+    })
+    .addCustomTeam(value);
+}
+
+
+/* =========================
+   CUSTOM AGENT
+========================= */
+
+function openAgentModal() {
+  openModal('agentModal');
+}
+
+function closeAgentModal() {
+  closeModal('agentModal');
+}
+
+function saveCustomAgent() {
+
+  const value =
+    document.getElementById('customAgent')
+      .value
+      .trim();
+
+  if (!value) {
+    toast('Enter an agent name.');
+    return;
+  }
+
+  showLoading(true);
+
+  google.script.run
+    .withSuccessHandler(data => {
+
+      DATA = data;
+
+      document.getElementById('customAgent').value = '';
+
+      closeAgentModal();
+
+      populateDropdowns();
+
+      showLoading(false);
+
+      toast('Custom agent added.');
+
+    })
+    .withFailureHandler(error => {
+
+      showLoading(false);
+      toast(error.message);
+
+    })
+    .addCustomAgent(value);
+}
+
+
+/* =========================
+   MODALS
+========================= */
+
+function openModal(id) {
+  document.getElementById(id)
+    .classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id)
+    .classList.remove('open');
+}
+
+function closePoolModal() {
+  closeModal('poolModal');
+}
+
+function closeApp() {
+  google.script.host.close();
+}
+
+
+/* =========================
+   UI HELPERS
+========================= */
+
+function showLoading(show) {
+
+  document.getElementById('loading')
+    .classList.toggle('hidden', !show);
+}
+
+
+let toastTimer;
+
+function toast(message) {
+
+  const element =
+    document.getElementById('toast');
+
+  element.textContent = message;
+
+  element.classList.add('show');
+
+  clearTimeout(toastTimer);
+
+  toastTimer = setTimeout(() => {
+
+    element.classList.remove('show');
+
+  }, 2500);
+}
+
+
+function escapeHtml(value) {
+
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+
+/* =========================
+   START
+========================= */
+
+// 1. Trigger the very first data load (this will show the loading screen)
+loadData(false);
+
+// 2. Set an interval to auto-refresh the data silently every 30 seconds
+setInterval(() => {
+  loadData(true); // 'true' means silent load (no loading screen overlay)
+}, 30000); // 30000 milliseconds = 30 seconds
+
+</script>
+
+</body>
+</html>
