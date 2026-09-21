@@ -16,3 +16,12 @@ Cannot run locally; no access to the real spreadsheet.
 - Client uses google.script.run, escapeHtml(), toast(), showTab()
 - Keep the Google-style CSS (#1a73e8, #dadce0, pill badges)
 - Put calculations in pure functions (no SpreadsheetApp) so they can be tested in Node with sample data
+## Designated pools (source of truth for "proper pools")
+Tabs: "Pool Sets" (Set | Pool ID | Pool Name), "Profiles" (Profile | Type | Set | Channels | Pools in set | Note),
+"Agent Profiles" (Agent | Profile | Suggested | Match %).
+Type = Primary | Secondary | Optional. Channels = "Chat+Email" or "Email only".
+designated(agent, channel, type) = union of Pool Sets referenced by the agent's Profile rows of that type, where Channels allows the channel.
+Compliance covers Chat and Email only; ignore Phone columns.
+Optional pools are never counted as missing or extra.
+Profiles: RTT HVU, EN HVU/DVIP, EN NA+GTV, RTT NA+GTV.
+Fixtures: fixtures/designated_pools_seed.xlsx (no agent data).
