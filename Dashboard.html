@@ -672,6 +672,23 @@
 }
 
 
+
+    .data-banner {
+      padding: 10px 16px;
+      font-size: 13px;
+      text-align: center;
+      margin: 0;
+      border-bottom: 1px solid #dadce0;
+      background-color: #e8f0fe;
+      color: #1967d2;
+    }
+
+    .data-banner.banner-warn {
+      background-color: #fef7e0;
+      color: #b06000;
+      border-bottom: 1px solid #fdd663;
+    }
+
   </style>
 </head>
 
@@ -693,6 +710,8 @@
   </button>
 
 </div>
+<div id="dataBanner" class="data-banner" style="display: none;"></div>
+
 
 
 <div id="dashboardTab" class="tab-content app">
@@ -1981,6 +2000,35 @@ function escapeHtml(value) {
 ========================= */
 
 // 1. Trigger the very first data load (this will show the loading screen)
+
+// Banner rendering
+function renderBanner(meta) {
+  const banner = document.getElementById('dataBanner');
+  banner.style.display = 'block';
+
+  if (!meta.hasData) {
+    banner.className = 'data-banner banner-warn';
+    banner.textContent = 'No data imported yet.';
+    return;
+  }
+
+  if (meta.isStale) {
+    banner.className = 'data-banner banner-warn';
+    banner.textContent = `Data is ${meta.staleDays} days old (as of ${meta.formattedDataEnd}). Import a newer Agent Report.`;
+  } else {
+    banner.className = 'data-banner';
+    banner.textContent = `Data as of ${meta.formattedDataEnd} · Extracted ${meta.extractedAt}`;
+  }
+}
+
+function loadMeta() {
+  google.script.run
+    .withSuccessHandler(renderBanner)
+    .withFailureHandler(function(err) { console.error('Failed to load meta:', err); })
+    .getMeta();
+}
+
+loadMeta();
 loadData(false);
 
 // 2. Set an interval to auto-refresh the data silently every 30 seconds

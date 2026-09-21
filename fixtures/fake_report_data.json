@@ -1,0 +1,15 @@
+{
+  "headers": [
+    "Agent", "Manager", "Location", "Activity Start Time (GMT+8:00)", "Activity End Time (GMT+8:00)",
+    "Phone Channel Status", "Chat Channel Status", "Email Channel Status",
+    "Phone Primary Pools", "Phone Secondary Pools",
+    "Chat Primary Pools", "Chat Secondary Pools",
+    "Email Primary Pools", "Email Secondary Pools"
+  ],
+  "rows": [
+    ["user1@google.com", "mgr1", "PH", "2026-09-20 00:00:00", "2026-09-20 04:00:00", "STATUS_OFFLINE", "STATUS_OFFLINE", "STATUS_OFFLINE", "", "", "101,102", "201", "301", ""],
+    ["user1@google.com", "mgr1", "PH", "2026-09-20 04:00:00", "2026-09-20 08:00:00", "STATUS_OFFLINE", "STATUS_AVAILABLE", "STATUS_OFFLINE", "", "", "101,102", "201", "301, 302", ""],
+    ["user2@google.com", "mgr2", "US", "2026-09-20 01:00:00", "2026-09-20 09:00:00", "STATUS_OFFLINE", "STATUS_BUSY", "STATUS_OFFLINE", "401", "", "103", "", "", ""],
+    ["user3@google.com", "mgr3", "IN", "2026-09-20 02:00:00", "2026-09-20 10:00:00", "STATUS_OFFLINE", "STATUS_OFFLINE", "STATUS_OFFLINE", "", "", "", "", "", ""]
+  ]
+}

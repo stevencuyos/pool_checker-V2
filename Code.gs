@@ -1,6 +1,10 @@
 const CONFIG = {
 
   SPREADSHEET_ID: 'YOUR_SPREADSHEET_ID_HERE',
+  REPORT_FOLDER_ID: 'YOUR_REPORT_FOLDER_ID_HERE',
+  REPORT_FILE_ID: '',
+  TRIGGER_HOUR: 17,
+  FILENAME_UTC_OFFSET: '+08:00',
 
   CHECKER_SHEET: 'CHECKER',
   PHTEAMS_SHEET: 'PHteams',
@@ -33,6 +37,7 @@ function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu('Pool Checker')
     .addItem('Open Dashboard in Sheet', 'showDashboard')
+    .addItem('Refresh data now', 'forceImport')
     .addToUi();
 }
 
@@ -728,4 +733,252 @@ function getTeamPoolSummary() {
 
   return result;
 
+}
+
+/* =========================
+   REPORT INGESTION & TRIGGER
+========================= */
+
+function forceImport() {
+  importAgentReport(true);
+}
+
+function installDailyTrigger() {
+  const triggers = ScriptApp.getProjectTriggers();
+  triggers.forEach(t => {
+    if (t.getHandlerFunction() === 'importAgentReport') {
+      ScriptApp.deleteTrigger(t);
+    }
+  });
+
+  ScriptApp.newTrigger('importAgentReport')
+    .timeBased()
+    .atHour(CONFIG.TRIGGER_HOUR)
+    .everyDays(1)
+    .inTimezone('Asia/Manila')
+    .create();
+}
+
+function importAgentReport(force = false) {
+  const lock = LockService.getScriptLock();
+  // Wait up to 3 minutes for other processes to finish.
+  if (!lock.tryLock(180000)) {
+    console.error('Could not obtain lock after 3 minutes.');
+    return;
+  }
+
+  try {
+    let reportFile;
+    if (CONFIG.REPORT_FILE_ID) {
+      reportFile = DriveApp.getFileById(CONFIG.REPORT_FILE_ID);
+    } else {
+      const folder = DriveApp.getFolderById(CONFIG.REPORT_FOLDER_ID);
+      const files = folder.getFilesByType(MimeType.GOOGLE_SHEETS);
+      let newest = null;
+      let newestDate = 0;
+      while (files.hasNext()) {
+        const f = files.next();
+        if (f.getName().startsWith("Agent Report")) {
+          const created = f.getDateCreated().getTime();
+          if (created > newestDate) {
+            newest = f;
+            newestDate = created;
+          }
+        }
+      }
+      if (!newest) throw new Error("No Agent Report found.");
+      reportFile = newest;
+    }
+
+    const ss = getSpreadsheet_();
+    let metaSheet = ss.getSheetByName("Meta");
+    if (!metaSheet) {
+      metaSheet = ss.insertSheet("Meta");
+    }
+
+    const fileUrl = reportFile.getUrl();
+
+    // Check if we already processed this file
+    if (!force) {
+      const currentMeta = getMeta();
+      if (currentMeta.sourceUrl === fileUrl) {
+        return; // Already processed
+      }
+    }
+
+    const reportSs = SpreadsheetApp.openById(reportFile.getId());
+    const reportSheet = reportSs.getSheets()[0]; // Read getSheets()[0]
+
+    const dataRange = reportSheet.getDataRange();
+    const rows = dataRange.getDisplayValues(); // One pass getDisplayValues
+    if (rows.length < 2) return;
+
+    const headers = rows[0];
+    const dataRows = rows.slice(1);
+
+    // Dedupe latest
+    const dedupeResult = dedupeLatest(dataRows, headers);
+    const agentsMap = dedupeResult.agents;
+
+    // Extract metadata
+    const extractedAt = parseExtractedAt(reportFile.getName(), reportFile.getDateCreated());
+    let dataStartMs = dedupeResult.globalDataStartMs;
+    let dataEndMs = -Infinity;
+    let validRows = 0;
+
+    for (const d of agentsMap) {
+      const ms = d.latestEndMs;
+      if (ms > dataEndMs) dataEndMs = ms;
+      validRows += d.rowsInReport;
+    }
+
+    const dataStartIso = dataStartMs !== Infinity ? new Date(dataStartMs + 8 * 60 * 60 * 1000).toISOString().replace('.000Z', '') + '+08:00' : '';
+    const dataEndIso = dataEndMs !== -Infinity ? new Date(dataEndMs + 8 * 60 * 60 * 1000).toISOString().replace('.000Z', '') + '+08:00' : '';
+
+    // Create 'Enabled' sheet data
+    // Enabled: Agent | Manager | Location | Channel | Type | Pool ID
+    const enabledData = [["Agent", "Manager", "Location", "Channel", "Type", "Pool ID"]];
+    const channelIdxMap = {
+      "Phone": [0, 1], // Primary, Secondary indices in latestPoolStrings
+      "Chat": [2, 3],
+      "Email": [4, 5]
+    };
+    const channelTypes = ["Primary", "Secondary"];
+
+    for (const ag of agentsMap) {
+      for (const channel of ["Phone", "Chat", "Email"]) {
+        for (let t = 0; t < 2; t++) {
+          const type = channelTypes[t];
+          const pIdx = channelIdxMap[channel][t];
+          const pString = ag.latestPoolStrings[pIdx];
+          const pools = splitPools(pString);
+          for (const pid of pools) {
+            enabledData.push([ag.agent, ag.manager, ag.location, channel, type, pid]);
+          }
+        }
+      }
+    }
+
+    // Create 'Agents' sheet data
+    // Agents: Agent | Manager | Location | LastActivityEnd | ChatSeenOnline | PhoneSeenOnline | EmailSeenOnline | ChangedDuringDay | RowsInReport
+    const agentsData = [["Agent", "Manager", "Location", "LastActivityEnd", "ChatSeenOnline", "PhoneSeenOnline", "EmailSeenOnline", "ChangedDuringDay", "RowsInReport"]];
+    for (const ag of agentsMap) {
+      agentsData.push([
+        ag.agent,
+        ag.manager,
+        ag.location,
+        ag.latestEndIso,
+        ag.chatSeenOnline,
+        ag.phoneSeenOnline,
+        ag.emailSeenOnline,
+        ag.changedDuringDay,
+        ag.rowsInReport
+      ]);
+    }
+
+    let enabledSheet = ss.getSheetByName("Enabled");
+    if (!enabledSheet) {
+      enabledSheet = ss.insertSheet("Enabled");
+    }
+    enabledSheet.clear();
+    enabledSheet.getRange(1, 1, enabledData.length, enabledData[0].length)
+                .setValues(enabledData)
+                .setNumberFormat("@"); // as plain text
+
+    let agentsSheet = ss.getSheetByName("Agents");
+    if (!agentsSheet) {
+      agentsSheet = ss.insertSheet("Agents");
+    }
+    agentsSheet.clear();
+    agentsSheet.getRange(1, 1, agentsData.length, agentsData[0].length).setValues(agentsData).setNumberFormat("@");
+
+    // Write 'Meta'
+    const metaData = [
+      ["Key", "Value"],
+      ["DataStart", dataStartIso],
+      ["DataEnd", dataEndIso],
+      ["ExtractedAt", extractedAt],
+      ["SourceUrl", fileUrl],
+      ["RowsRead", dataRows.length],
+      ["Agents", agentsMap.length]
+    ];
+    metaSheet.clear();
+    metaSheet.getRange(1, 1, metaData.length, 2).setValues(metaData).setNumberFormat("@");
+
+    // Clear cache
+    const cache = CacheService.getScriptCache();
+    cache.remove('meta_data');
+
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function getMeta() {
+  const cache = CacheService.getScriptCache();
+  const cached = cache.get('meta_data');
+  if (cached) {
+    return JSON.parse(cached);
+  }
+
+  const ss = getSpreadsheet_();
+  const metaSheet = ss.getSheetByName("Meta");
+
+  if (!metaSheet) {
+    const res = { hasData: false };
+    cache.put('meta_data', JSON.stringify(res), 300); // 5 min
+    return res;
+  }
+
+  const rows = metaSheet.getDataRange().getDisplayValues();
+  const metaMap = {};
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i][0]) metaMap[rows[i][0]] = rows[i][1];
+  }
+
+  if (!metaMap["DataEnd"]) {
+    const res = { hasData: false };
+    cache.put('meta_data', JSON.stringify(res), 300);
+    return res;
+  }
+
+  const nowMs = new Date().getTime();
+  const dataEndIso = metaMap["DataEnd"];
+  const staleness = computeStaleness(dataEndIso, nowMs);
+
+  let formattedExtractedAt = metaMap["ExtractedAt"];
+  if (formattedExtractedAt) {
+    try {
+      // Parse ISO string to Date object
+      // E.g. 2026-09-21T16:21:28+08:00
+      const d = new Date(formattedExtractedAt);
+      formattedExtractedAt = Utilities.formatDate(d, 'Asia/Manila', "MMM d, yyyy h:mm a");
+    } catch(e) {
+      // ignore
+    }
+  }
+
+  let formattedDataEnd = dataEndIso;
+  if (formattedDataEnd) {
+    try {
+      const d = new Date(formattedDataEnd);
+      formattedDataEnd = Utilities.formatDate(d, 'Asia/Manila', "MMM d, yyyy");
+    } catch(e) {
+      // ignore
+    }
+  }
+
+  const res = {
+    hasData: true,
+    dataStart: metaMap["DataStart"],
+    dataEnd: dataEndIso,
+    formattedDataEnd: formattedDataEnd,
+    extractedAt: formattedExtractedAt,
+    staleDays: staleness.staleDays,
+    isStale: staleness.isStale,
+    sourceUrl: metaMap["SourceUrl"]
+  };
+
+  cache.put('meta_data', JSON.stringify(res), 300);
+  return res;
 }
